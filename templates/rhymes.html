@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<%namespace name="templates" file="emphasize.html"/>
+<%namespace name="structure" file="header.html"/>
+<html lang="en">
+
+${structure.header()}
+<body>
+<h1>Title here, eventually</h1>
+<div id="text-container">
+    <div id="text">
+    % for line in lines:
+    <div><span>${line[0]}</span> ${templates.emphasize(line[1], line[2])} </div>
+    % endfor
+    </div>
+</div>
+
+</body>
+</html>

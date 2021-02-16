@@ -3,6 +3,8 @@ import nltk
 import string
 
 import itertools
+
+from render import render_results
 # Sketches of code and notes about detecting rhymes in text
 
 '''
@@ -154,11 +156,11 @@ def humanize_stress(stress):
     :param stress: CMU-defined stress marker (1 > 2 > 0)
     :return converted_stress: ordered stress marker
     '''
-    if stress is 1:
+    if stress == 1:
         return 2
-    if stress is 2:
+    if stress == 2:
         return 1
-    if stress is None:
+    if stress == None:
         return 0
     else:
         return stress
@@ -357,15 +359,30 @@ for pair in list(itertools.combinations(last_words, 2)):
             rhyme_groups.append(set(pair))
 
 
+
 '''
     Now print out a report. Print each line, then a label for the rhyme group
     that the last word matches. Not too shabby for a first pass.
 '''
+classes = []
+
 for line, word in zip(stripped, last_words):
+    line_data = [line, word]
+    found_rhyme = False
     for idx, rhyme_group in enumerate(rhyme_groups):
         if word in rhyme_group:
-            print(line, chr(ord('@')+idx + 1))
+            found_rhyme = True
+            classes.append("group-{}".format(idx))
             break
+    if not found_rhyme:
+        classes.append("default")
+
+
+
+f = open(r"output/output.html", "w")
+f.write(render_results(lines=[(line[0:line.rindex(' ')], line[line.rindex(' '):], class_name)
+                              for line, class_name in zip(stripped, classes)]))
+
 
 '''
 # just some notes below here

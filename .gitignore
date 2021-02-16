@@ -1,0 +1,6 @@
+.idea
+venv
+
+# build artifacts
+__pycache__/
+output/output.html

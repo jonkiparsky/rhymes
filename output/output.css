@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+
+* {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 25px;
+}
+
+h1 {
+    font-size: 70px;
+    font-weight: 800;
+    width: 100vw;
+    text-align: center;
+    position: relative;
+    top: 7vh;
+}
+
+#text-container {
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+}
+
+#text-container #text {
+    position: relative;
+    top: 10vh;
+    width: 80%;
+}
+
+.emphasis {
+    font-weight: 700;
+    font-size: 35px;
+}
+
+.emphasis.default {
+    font-weight: unset;
+}
+
+.group-0 {
+    color: maroon;
+}
+
+.group-1 {
+    color: crimson;
+}
+
+.group-2 {
+    color: darkorange;
+}
+.group-3 {
+    color: gold;
+}
+
+.group-4 {
+    color: forestgreen;
+}
+
+.group-5 {
+    color: darkolivegreen;
+}
+
+.group-6 {
+    color: dodgerblue;
+}
+
+.group-7 {
+    color: midnightblue;
+}
+
+.group-8 {
+    color: mediumpurple;
+}
+
+.group-9 {
+    color: lightpink;
+}
+
+.group-10 {
+    color: brown;
+}
+
+.group-11 {
+    color: darkgray;
+}
+
+.group-12 {
+    color: palegreen;
+}
+
+.group-13 {
+    color: turquoise;
+}
+
+.group-14 {
+    color: tomato;
+}
