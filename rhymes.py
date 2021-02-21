@@ -1,4 +1,4 @@
-rom collections import defaultdict
+from collections import defaultdict
 import nltk
 import string
 
@@ -337,7 +337,6 @@ for pair in list(itertools.combinations(last_words, 2)):
             rhyme_groups.append(set(pair))
 
 
-
 '''
     Now print out a report. Print each line, then a label for the rhyme group
     that the last word matches. Not too shabby for a first pass.
@@ -356,9 +355,10 @@ for line, word in zip(stripped, last_words):
         classes.append("default")
 
 
-
 f = open(r"output/output.html", "w")
-f.write(render_results(lines=[(line[0:line.rindex(' ')], line[line.rindex(' '):], class_name)
+f.write(render_results(lines=[(line[0:line.rindex(' ')],
+                               line[line.rindex(' '):],
+                               class_name)
                               for line, class_name in zip(stripped, classes)]))
 
 
