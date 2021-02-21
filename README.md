@@ -20,5 +20,11 @@ see https://en.wikipedia.org/wiki/ARPABET
 
 CMU uses the 2-letter variant, with stress indicators. Stress is indicated by
 digits appended to vowels, and is a little confusing: 1 is primary stress,
-2 is secondary stress, and 0 is no stress. (so 1 > 2 > 0)
+2 is secondary stress, and 0 is no stress. (so 1 > 2 > 0).
+`humanize_stress` converts to a a sensible format
+
+
+
+Readings:
+Zwicky, Linguistics and Folk Poetry
 
