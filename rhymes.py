@@ -1,4 +1,4 @@
-from collections import defaultdict
+rom collections import defaultdict
 import nltk
 import string
 
@@ -6,26 +6,6 @@ import itertools
 # Sketches of code and notes about detecting rhymes in text
 
 '''
-Some useful resources:
-
-Basis for syllabizing words is the CMU pronouncing Dictionary
-https://en.wikipedia.org/wiki/CMU_Pronouncing_Dictionary
-"Official version" (cited by cmu) is the svn repo:
-http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/
-Also at github: https://github.com/cmusphinx/cmudict (this might be better
-maintained, but the format has changed a bit, so the code below would need
-to be tweaked)
-Can also import this data via nltk, but installing nltk is annoying and
-maybe not super helpful.
-Note: github and nltk versions use lowercase entries and uppercase syllables,
-svn uses uppercase for both. Arbitrarily normalizing to lowercase here.
-
-CMU dict uses an enriched form of ARPAbet:
-see https://en.wikipedia.org/wiki/ARPABET
-
-CMU uses the 2-letter variant, with stress indicators. Stress is indicated by
-digits appended to vowels, and is a little confusing: 1 is primary stress,
-2 is secondary stress, and 0 is no stress. (so 1 > 2 > 0)
 
 '''
 
@@ -139,6 +119,7 @@ def get_stress(phoneme):
     From a phoneme representation, return the stress marker
     (an integer in [0, 1, 2])
     :return: stress marker or None if no marker exists
+
     '''
     if len(phoneme) == 0:
         return
@@ -154,14 +135,11 @@ def humanize_stress(stress):
     :param stress: CMU-defined stress marker (1 > 2 > 0)
     :return converted_stress: ordered stress marker
     '''
-    if stress is 1:
-        return 2
-    if stress is 2:
-        return 1
-    if stress is None:
-        return 0
-    else:
-        return stress
+    conversion = {1: 2,
+                  2: 1,
+                  None: 0}
+
+    return conversion.get(stress, stress)  # if not found, return what we got
 
 
 def max_stress(phonemes):
