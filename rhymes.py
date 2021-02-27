@@ -308,7 +308,7 @@ def rate_rhyme(word_1, word_2):
 
 
 # ok, let's see how we do
-word_keys, syl_keys = read_cmu_dict("dictionary")
+word_keys, syl_keys = read_cmu_dict("dicts/cmudict.txt")
 stripped = list(filter(lambda pot_line: len(pot_line) > 0, shropshire1))
 # empty lines are a crutch!
 last_words = [strip_punctuation(last_word(line)) for line in stripped]
