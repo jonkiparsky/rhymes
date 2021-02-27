@@ -208,13 +208,13 @@ def last_word(line, delimiter=" "):
     :return: substring of the input
     '''
     # there could be sneaky whitespace at the end!
-    clean_line = str.strip(line)
-    try:
+    clean_line = line.strip()
+    if delimiter in line:
         index = str.rindex(clean_line, delimiter)
-    except ValueError:
-        print(CLEAN_LINE_ERROR.format(clean_line))
-        return line
-    return line[index + 1:]
+        last = line[index + 1:]        
+    else: 
+        last = line
+    return last
 
 
 def eval_periphery(l1,
