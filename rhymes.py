@@ -310,7 +310,7 @@ stripped = list(filter(lambda pot_line: len(pot_line) > 0, shropshire1))
 # empty lines are a crutch!
 last_words = [strip_punctuation(last_word(line)) for line in stripped]
 
-THRESHHOLD = 0.7
+THRESHOLD = 0.7
 
 '''
   Process:
@@ -322,7 +322,7 @@ THRESHHOLD = 0.7
 
 rhyme_groups = []
 for pair in list(itertools.combinations(last_words, 2)):
-    rhyme = rate_rhyme(pair[0], pair[1]) > THRESHHOLD
+    rhyme = rate_rhyme(pair[0], pair[1]) > THRESHOLD
     if rhyme:
         matched = False
         for idx, group in enumerate(rhyme_groups):
