@@ -7,12 +7,9 @@ import itertools
 from render import render_results
 # Sketches of code and notes about detecting rhymes in text
 
-'''
 
-'''
-
-# helpful reference
 trans_table = str.maketrans("", "", string.punctuation)
+
 CLEAN_LINE_ERROR = "Did not find whitespace in string \"{}\". Returning input."
 # target poem
 shropshire1 = ['From Clee to heaven the beacon burns,',
@@ -62,11 +59,11 @@ shropshire1 = ['From Clee to heaven the beacon burns,',
 def cmu_data_from_nltk():
     entries = nltk.corpus.cmudict.entries()  # nltk may require some steps
     # for this to work...
-    to_syllables = dict(entries)  # oops! Just overwrote any alternate entries!
+    to_phonemes = dict(entries)  # oops! Just overwrote any alternate entries!
     to_word = {(tuple(val), key) for key, val in entries}
-    # to_syllables: keys are words in lowercase, values are lists of syllables
+    # to_phonemes: keys are words in lowercase, values are lists of phonemes
     # to_word inverts that dict
-    return to_syllables, to_word
+    return to_phonemes, to_word
 
 
 # Getting CMU dictionary data w/o NLTK
@@ -78,21 +75,21 @@ def cmu_data_from_nltk():
 
 
 def read_cmu_dict(path_to_cmu_dict):
-    cmu_syllables = defaultdict(list)  # maps words to syllables
-    cmu_words = defaultdict(list)      # maps syllables to words
-    # both names are lousy, sorry. the intent is that we get syllables
-    # from `cmu_syllables` and vice versa.
+    cmu_phonemes = defaultdict(list)  # maps words to phonemes
+    cmu_words = defaultdict(list)      # maps phonemes to words
+    # both names are lousy, sorry. the intent is that we get phonemes
+    # from `cmu_phonemes` and vice versa.
 
     f = open(path_to_cmu_dict, encoding="latin-1")
     for line in f:
         if line.startswith(";"):
             continue
-        word, syllables = line.strip().split("  ")
+        word, phonemes = line.strip().split("  ")
         word = word.lower()  # normalize to lowercase
-        syllables = tuple(syllables.split(" "))
-        cmu_syllables[word].append(syllables)
-        cmu_words[syllables].append(word)
-    return cmu_syllables, cmu_words
+        phonemes = tuple(phonemes.split(" "))
+        cmu_phonemes[word].append(phonemes)
+        cmu_words[phonemes].append(word)
+    return cmu_phonemes, cmu_words
 
 # It may turn out that we prefer to write this stuff to a sqlite db and read it
 # from disk rather than keep it in memory. This would have some advantages,
@@ -103,13 +100,13 @@ def flatten(list_of_lists):
     return [val for sublist in list_of_lists for val in sublist]
 
 
-def to_syllables(word, syllabary):
-    return syllabary.get(word.lower()) or [word]
+def to_phonemes(word, dictionary):
+    return dictionary.get(word.lower()) or [word]
 
 
-def syllabify(line, syllabary):
+def phonemify(line, syllabary):
     words = strip_punctuation(line).split(" ")
-    return [to_syllables(word, syllabary) for word in words]
+    return [to_phonemes(word, syllabary) for word in words]
 
 
 def strip_punctuation(s):
@@ -279,8 +276,8 @@ def rate_rhyme(word_1, word_2):
     :return:
     """
     # ew gross
-    phones_1 = flatten(flatten(syllabify(word_1, word_keys)))
-    phones_2 = flatten(flatten(syllabify(word_2, word_keys)))
+    phones_1 = flatten(flatten(phonemify(word_1, word_keys)))
+    phones_2 = flatten(flatten(phonemify(word_2, word_keys)))
     try:
         onset_1, coda_1 = split_on_final_vowel(phones_1)
         onset_2, coda_2 = split_on_final_vowel(phones_2)
