@@ -208,9 +208,9 @@ def last_word(line, delimiter=" "):
     clean_line = line.strip()
     if delimiter in line:
         index = str.rindex(clean_line, delimiter)
-        last = line[index + 1:]        
+        last = clean_line[index + 1:]        
     else: 
-        last = line
+        last = clean_line
     return last
 
 
@@ -322,7 +322,6 @@ def get_rhyme_groups(last_words, threshold=DEFAULT_RHYME_THRESHOLD):
       - if it rhymes with a known group, add the pair there. if not, make a
         new rhyme group
     '''
-
     rhyme_groups = []
     for pair in list(itertools.combinations(last_words, 2)):
         rhyme = rate_rhyme(pair[0], pair[1]) > threshold
@@ -340,7 +339,6 @@ def get_rhyme_groups(last_words, threshold=DEFAULT_RHYME_THRESHOLD):
 
 def classify_rhymes(last_words, rhyme_groups):
     classes = []
-
     for line, word in zip(stripped, last_words):
         line_data = [line, word]
         found_rhyme = False
@@ -354,14 +352,30 @@ def classify_rhymes(last_words, rhyme_groups):
     return classes
 
 
-def print_report(stripped_lines, classes):
-    f = open(r"output/output.html", "w")
-    f.write(render_results(lines=[(line[0:line.rindex(' ')],
+def generate_report(stripped_lines,
+                    classes,
+                    fname="output",
+                    title="Title"):
+    filepath = r"output/{}.html".format(fname)
+    f = open(filepath, "w")
+    f.write(render_results(title=title,
+                           lines=[(line[0:line.rindex(' ')],
                                    line[line.rindex(' '):],
                                    class_name)
-                                  for line, class_name in zip(stripped, classes)]))
+                                  for line, class_name in zip(stripped_lines, classes)]))
     
 
+def analyze_rhyme(lines):
+    lines = list(filter(lambda pot_line: len(pot_line) > 0, lines))
+    last_words = [strip_punctuation(last_word(line)) for line in lines]
+    rhyme_groups = get_rhyme_groups(last_words)
+    rhyme_classes = classify_rhymes(last_words, rhyme_groups)
+    generate_report(lines, rhyme_classes)
+
+
+def load_verses(path_to_file): 
+    return open(path_to_file).read().split("\n")
+    
 '''
 # just some notes below here
 # matching primary stress vowel
