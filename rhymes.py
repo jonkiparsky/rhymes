@@ -310,54 +310,57 @@ stripped = list(filter(lambda pot_line: len(pot_line) > 0, shropshire1))
 # empty lines are a crutch!
 last_words = [strip_punctuation(last_word(line)) for line in stripped]
 
-THRESHOLD = 0.7
+DEFAULT_RHYME_THRESHOLD = 0.7
 
-'''
-  Process:
-  - get all the possible pairings of last words
-  - if a pair rhymes, check and see if it rhymes with an already-known group
-  - if it rhymes with a known group, add the pair there. if not, make a
-    new rhyme group
-'''
 
-rhyme_groups = []
-for pair in list(itertools.combinations(last_words, 2)):
-    rhyme = rate_rhyme(pair[0], pair[1]) > THRESHOLD
-    if rhyme:
-        matched = False
-        for idx, group in enumerate(rhyme_groups):
-            if rate_rhyme(pair[0], next(iter(group))) > THRESHHOLD:
-                group.update(pair)  # maybe only save a representative sample?
-                matched = True
+
+def get_rhyme_groups(last_words, threshold=DEFAULT_RHYME_THRESHOLD):
+    '''
+      Process:
+      - get all the possible pairings of last words
+      - if a pair rhymes, check and see if it rhymes with an already-known group
+      - if it rhymes with a known group, add the pair there. if not, make a
+        new rhyme group
+    '''
+
+    rhyme_groups = []
+    for pair in list(itertools.combinations(last_words, 2)):
+        rhyme = rate_rhyme(pair[0], pair[1]) > threshold
+        if rhyme:
+            matched = False
+            for idx, group in enumerate(rhyme_groups):
+                if rate_rhyme(pair[0], next(iter(group))) > threshold:
+                    group.update(pair)  # maybe only save a representative sample?
+                    matched = True
+                    break
+            if not matched:
+                rhyme_groups.append(set(pair))
+    return rhyme_groups
+
+
+def classify_rhymes(last_words, rhyme_groups):
+    classes = []
+
+    for line, word in zip(stripped, last_words):
+        line_data = [line, word]
+        found_rhyme = False
+        for idx, rhyme_group in enumerate(rhyme_groups):
+            if word in rhyme_group:
+                found_rhyme = True
+                classes.append("group-{}".format(idx))
                 break
-        if not matched:
-            rhyme_groups.append(set(pair))
+        if not found_rhyme:
+            classes.append("default")
+    return classes
 
 
-'''
-    Now print out a report. Print each line, then a label for the rhyme group
-    that the last word matches. Not too shabby for a first pass.
-'''
-classes = []
-
-for line, word in zip(stripped, last_words):
-    line_data = [line, word]
-    found_rhyme = False
-    for idx, rhyme_group in enumerate(rhyme_groups):
-        if word in rhyme_group:
-            found_rhyme = True
-            classes.append("group-{}".format(idx))
-            break
-    if not found_rhyme:
-        classes.append("default")
-
-
-f = open(r"output/output.html", "w")
-f.write(render_results(lines=[(line[0:line.rindex(' ')],
-                               line[line.rindex(' '):],
-                               class_name)
-                              for line, class_name in zip(stripped, classes)]))
-
+def print_report(stripped_lines, classes):
+    f = open(r"output/output.html", "w")
+    f.write(render_results(lines=[(line[0:line.rindex(' ')],
+                                   line[line.rindex(' '):],
+                                   class_name)
+                                  for line, class_name in zip(stripped, classes)]))
+    
 
 '''
 # just some notes below here
