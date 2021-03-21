@@ -1,80 +1,31 @@
 from collections import defaultdict
-import nltk
 import string
-
 import itertools
 
 from render import render_results
-# Sketches of code and notes about detecting rhymes in text
 
+DEFAULT_RHYME_THRESHOLD = 0.7
 
 trans_table = str.maketrans("", "", string.punctuation)
 
 CLEAN_LINE_ERROR = "Did not find whitespace in string \"{}\". Returning input."
-# target poem
-shropshire1 = ['From Clee to heaven the beacon burns,',
-               'The shires have seen it plain,',
-               'From north and south the sign returns',
-               'And beacons burn again.',
-               '',
-               'Look left, look right, the hills are bright,',
-               'The dales are light between,',
-               "Because 'tis fifty years to-night",
-               'That God has saved the Queen.',
-               '',
-               'Now, when the flame they watch not towers',
-               'About the soil they trod,',
-               "Lads, we'll remember friends of ours",
-               'Who shared the work with God.',
-               '',
-               'To skies that knit their heartstrings right,',
-               'To fields that bred them brave,',
-               'The saviours come not home to-night:',
-               'Themselves they could not save.',
-               '',
-               'It dawns in Asia, tombstones show',
-               'And Shropshire names are read;',
-               'And the Nile spills his overflow',
-               "Beside the Severn's dead.",
-               '',
-               'We pledge in peace by farm and town',
-               'The Queen they served in war,',
-               'And fire the beacons up and down',
-               'The land they perished for.',
-               '',
-               '"God Save the Queen" we living sing,',
-               "From height to height 'tis heard;",
-               'And with the rest your voices ring,',
-               'Lads of the Fifty-third.',
-               '',
-               'Oh, God will save her, fear you not:',
-               "Be you the men you've been,",
-               'Get you the sons your fathers got,',
-               'And God will Save the Queen.']
 
-# Getting CMU dictionary data from NLTK
-# This is just to get us something to play with, it's horrible...
-
-
-def cmu_data_from_nltk():
-    entries = nltk.corpus.cmudict.entries()  # nltk may require some steps
-    # for this to work...
-    to_phonemes = dict(entries)  # oops! Just overwrote any alternate entries!
-    to_word = {(tuple(val), key) for key, val in entries}
-    # to_phonemes: keys are words in lowercase, values are lists of phonemes
-    # to_word inverts that dict
-    return to_phonemes, to_word
-
-
-# Getting CMU dictionary data w/o NLTK
+# Getting CMU dictionary data
 # download current CMU data from
-# http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/
+# 
 # note that github version modified format, so can't use that here
 # this time, I'm being a little fancier and not clobbering alternates -
 # this makes  handling the results a little more annoying, though
 
 
-def read_cmu_dict(path_to_cmu_dict):
+def read_cmu_dict(path_to_cmu_dict="dicts/cmudict.txt"):
+    """Assumes a copy of the cmu dict is living on disk. 
+    For convenience, repo includes this data, which lives at
+    http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/
+    Note: it is also possible to get a version of the CMU
+    dictionary from NLTK, but it is in a slightly different format
+    and should not be loaded using this function. 
+    """
     cmu_phonemes = defaultdict(list)  # maps words to phonemes
     cmu_words = defaultdict(list)      # maps phonemes to words
     # both names are lousy, sorry. the intent is that we get phonemes
@@ -206,7 +157,7 @@ def last_word(line, delimiter=" "):
     '''
     # there could be sneaky whitespace at the end!
     clean_line = line.strip()
-    if delimiter in line:
+    if delimiter in clean_line:
         index = str.rindex(clean_line, delimiter)
         last = clean_line[index + 1:]        
     else: 
@@ -304,16 +255,6 @@ def rate_rhyme(word_1, word_2):
     return current_points / possible_points
 
 
-# ok, let's see how we do
-word_keys, syl_keys = read_cmu_dict("dicts/cmudict.txt")
-stripped = list(filter(lambda pot_line: len(pot_line) > 0, shropshire1))
-# empty lines are a crutch!
-last_words = [strip_punctuation(last_word(line)) for line in stripped]
-
-DEFAULT_RHYME_THRESHOLD = 0.7
-
-
-
 def get_rhyme_groups(last_words, threshold=DEFAULT_RHYME_THRESHOLD):
     '''
       Process:
@@ -338,6 +279,10 @@ def get_rhyme_groups(last_words, threshold=DEFAULT_RHYME_THRESHOLD):
 
 
 def classify_rhymes(last_words, rhyme_groups):
+    """Given a list of "words" (should these be words, or should they
+    be, perhaps, feet?) and rhyme classifications, assign the words to 
+    the appropriate classifications
+    """
     classes = []
     for line, word in zip(stripped, last_words):
         line_data = [line, word]
@@ -352,10 +297,13 @@ def classify_rhymes(last_words, rhyme_groups):
     return classes
 
 
-def generate_report(stripped_lines,
+def generate_html_report(stripped_lines,
                     classes,
                     fname="output",
                     title="Title"):
+    """Given a list of lines and a list of rhyme classes, produce
+    a pretty report about the lines and their rhymes. 
+    """
     filepath = r"output/{}.html".format(fname)
     f = open(filepath, "w")
     f.write(render_results(title=title,
@@ -366,16 +314,35 @@ def generate_report(stripped_lines,
     
 
 def analyze_rhyme(lines):
-    lines = list(filter(lambda pot_line: len(pot_line) > 0, lines))
+    '''Take a sequence of lines and perform some analysis on it.
+    Currently this is called for a side-effect, it produces an html
+    report on disk. 
+    Better would be to return the analysis and allow the user to make
+    use of it as they prefer.
+    '''
+    
     last_words = [strip_punctuation(last_word(line)) for line in lines]
     rhyme_groups = get_rhyme_groups(last_words)
     rhyme_classes = classify_rhymes(last_words, rhyme_groups)
-    generate_report(lines, rhyme_classes)
+    generate_html_report(lines, rhyme_classes)
 
 
-def load_verses(path_to_file): 
-    return open(path_to_file).read().split("\n")
+def load_verses(path_to_file, strip_empty_lines=False):
+    '''Convenience function for getting material to work with
+    '''
+    lines = open(path_to_file).readlines()
+    if strip_empty_lines:
+        lines = [line for line in lines if line]
+    return lines
     
+
+# demonstrate usage
+def how_we_do_it():
+    word_keys, syl_keys = read_cmu_dict()
+    poem = load_verses("texts/housman/shropshire0.txt")
+    analyze_rhyme(poem)
+
+
 '''
 # just some notes below here
 # matching primary stress vowel
