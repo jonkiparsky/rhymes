@@ -28,3 +28,6 @@ digits appended to vowels, and is a little confusing: 1 is primary stress,
 Readings:
 Zwicky, Linguistics and Folk Poetry
 
+To do:
+- html output generation fails due to titles, etc, preceding poem
+
