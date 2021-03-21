@@ -278,13 +278,13 @@ def get_rhyme_groups(last_words, threshold=DEFAULT_RHYME_THRESHOLD):
     return rhyme_groups
 
 
-def classify_rhymes(last_words, rhyme_groups):
+def classify_rhymes(last_words, lines, rhyme_groups):
     """Given a list of "words" (should these be words, or should they
     be, perhaps, feet?) and rhyme classifications, assign the words to 
     the appropriate classifications
     """
     classes = []
-    for line, word in zip(stripped, last_words):
+    for line, word in zip(lines, last_words):
         line_data = [line, word]
         found_rhyme = False
         for idx, rhyme_group in enumerate(rhyme_groups):
@@ -311,6 +311,7 @@ def generate_html_report(stripped_lines,
                                    line[line.rindex(' '):],
                                    class_name)
                                   for line, class_name in zip(stripped_lines, classes)]))
+    print("Wrote output to {}".format(filepath))
     
 
 def analyze_rhyme(lines):
@@ -323,14 +324,14 @@ def analyze_rhyme(lines):
     
     last_words = [strip_punctuation(last_word(line)) for line in lines]
     rhyme_groups = get_rhyme_groups(last_words)
-    rhyme_classes = classify_rhymes(last_words, rhyme_groups)
+    rhyme_classes = classify_rhymes(last_words, lines, rhyme_groups)
     generate_html_report(lines, rhyme_classes)
 
 
 def load_verses(path_to_file, strip_empty_lines=False):
     '''Convenience function for getting material to work with
     '''
-    lines = open(path_to_file).readlines()
+    lines = [line.strip() for line in open(path_to_file).readlines()]
     if strip_empty_lines:
         lines = [line for line in lines if line]
     return lines
