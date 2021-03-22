@@ -1,0 +1,16 @@
+;;; # Test dict
+;;; # Formatted like CMUdict, but much less to import!
+;;; # including an empty line because we should tolerate that
+
+AT  AE1 T
+BAT  B AE1 T
+BEGAT  B IH0 G AE1 T
+CAT  K AE1 T
+CHAT  CH AE1 T
+FAT  F AE1 T
+FLAT  F L AE1 T
+GNAT  N AE1 T
+HAT  HH AE1 T
+MAT  M AE1 T
+SAT  S AE1 T
+VAT  V AE1 T
