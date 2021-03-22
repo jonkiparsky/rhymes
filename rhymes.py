@@ -199,7 +199,7 @@ def eval_periphery(l1,
     return current_pts, possible_pts
 
 
-def rate_rhyme(word_1, word_2):
+def rate_rhyme(word_1, word_2, word_keys):
     """
     Takes two words (in English...might want to adapt this to also accept
     phoneme lists) and returns an estimate of how closely they rhyme. Values
@@ -257,7 +257,7 @@ def rate_rhyme(word_1, word_2):
     return current_points / possible_points
 
 
-def get_rhyme_groups(last_words, threshold=DEFAULT_RHYME_THRESHOLD):
+def get_rhyme_groups(last_words, word_keys, threshold=DEFAULT_RHYME_THRESHOLD):
     '''
       Process:
       - get all the possible pairings of last words
@@ -267,11 +267,11 @@ def get_rhyme_groups(last_words, threshold=DEFAULT_RHYME_THRESHOLD):
     '''
     rhyme_groups = []
     for pair in list(itertools.combinations(last_words, 2)):
-        rhyme = rate_rhyme(pair[0], pair[1]) > threshold
+        rhyme = rate_rhyme(pair[0], pair[1], word_keys) > threshold
         if rhyme:
             matched = False
             for idx, group in enumerate(rhyme_groups):
-                if rate_rhyme(pair[0], next(iter(group))) > threshold:
+                if rate_rhyme(pair[0], next(iter(group), word_keys)) > threshold:
                     group.update(pair)  # maybe only save a representative sample?
                     matched = True
                     break
@@ -316,7 +316,7 @@ def generate_html_report(stripped_lines,
     print("Wrote output to {}".format(filepath))
     
 
-def analyze_rhyme(lines):
+def analyze_rhyme(lines, word_keys):
     '''Take a sequence of lines and perform some analysis on it.
     Currently this is called for a side-effect, it produces an html
     report on disk. 
@@ -325,7 +325,7 @@ def analyze_rhyme(lines):
     '''
     
     last_words = [strip_punctuation(last_word(line)) for line in lines]
-    rhyme_groups = get_rhyme_groups(last_words)
+    rhyme_groups = get_rhyme_groups(last_words, word_keys)
     rhyme_classes = classify_rhymes(last_words, lines, rhyme_groups)
     generate_html_report(lines, rhyme_classes)
 
@@ -343,7 +343,7 @@ def load_verses(path_to_file, strip_empty_lines=False):
 def how_we_do_it():
     word_keys, syl_keys = read_cmu_dict()
     poem = load_verses("texts/housman/shropshire0.txt")
-    analyze_rhyme(poem)
+    analyze_rhyme(poem, word_keys)
 
 
 '''
