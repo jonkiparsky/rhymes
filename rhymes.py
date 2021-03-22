@@ -12,19 +12,19 @@ CLEAN_LINE_ERROR = "Did not find whitespace in string \"{}\". Returning input."
 
 # Getting CMU dictionary data
 # download current CMU data from
-# 
+#
 # note that github version modified format, so can't use that here
 # this time, I'm being a little fancier and not clobbering alternates -
 # this makes  handling the results a little more annoying, though
 
 
 def read_cmu_dict(path_to_cmu_dict="dicts/cmudict.txt"):
-    """Assumes a copy of the cmu dict is living on disk. 
+    """Assumes a copy of the cmu dict is living on disk.
     For convenience, repo includes this data, which lives at
     http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/
     Note: it is also possible to get a version of the CMU
     dictionary from NLTK, but it is in a slightly different format
-    and should not be loaded using this function. 
+    and should not be loaded using this function.
     """
     cmu_phonemes = defaultdict(list)  # maps words to phonemes
     cmu_words = defaultdict(list)      # maps phonemes to words
@@ -161,8 +161,8 @@ def last_word(line, delimiter=" "):
     clean_line = line.strip()
     if delimiter in clean_line:
         index = str.rindex(clean_line, delimiter)
-        last = clean_line[index + 1:]        
-    else: 
+        last = clean_line[index + 1:]
+    else:
         last = clean_line
     return last
 
@@ -234,7 +234,7 @@ def rate_rhyme(word_1, word_2, word_keys):
     try:
         onset_1, coda_1 = split_on_final_vowel(phones_1)
         onset_2, coda_2 = split_on_final_vowel(phones_2)
-    except ValueError as e:
+    except ValueError:
         # something wasn't parsed correctly
         return 0
 
@@ -261,7 +261,7 @@ def get_rhyme_groups(last_words, word_keys, threshold=DEFAULT_RHYME_THRESHOLD):
     '''
       Process:
       - get all the possible pairings of last words
-      - if a pair rhymes, check and see if it rhymes with an already-known group
+      - if a pair rhymes, check and see if it rhymes with a known group
       - if it rhymes with a known group, add the pair there. if not, make a
         new rhyme group
     '''
@@ -271,8 +271,11 @@ def get_rhyme_groups(last_words, word_keys, threshold=DEFAULT_RHYME_THRESHOLD):
         if rhyme:
             matched = False
             for idx, group in enumerate(rhyme_groups):
-                if rate_rhyme(pair[0], next(iter(group), word_keys)) > threshold:
-                    group.update(pair)  # maybe only save a representative sample?
+                rhyme_rating = rate_rhyme(pair[0],
+                                          next(iter(group)),
+                                          word_keys)
+                if rhyme_rating > threshold:
+                    group.update(pair)
                     matched = True
                     break
             if not matched:
@@ -282,12 +285,11 @@ def get_rhyme_groups(last_words, word_keys, threshold=DEFAULT_RHYME_THRESHOLD):
 
 def classify_rhymes(last_words, lines, rhyme_groups):
     """Given a list of "words" (should these be words, or should they
-    be, perhaps, feet?) and rhyme classifications, assign the words to 
+    be, perhaps, feet?) and rhyme classifications, assign the words to
     the appropriate classifications
     """
     classes = []
     for line, word in zip(lines, last_words):
-        line_data = [line, word]
         found_rhyme = False
         for idx, rhyme_group in enumerate(rhyme_groups):
             if word in rhyme_group:
@@ -300,11 +302,11 @@ def classify_rhymes(last_words, lines, rhyme_groups):
 
 
 def generate_html_report(stripped_lines,
-                    classes,
-                    fname="output",
-                    title="Title"):
+                         classes,
+                         fname="output",
+                         title="Title"):
     """Given a list of lines and a list of rhyme classes, produce
-    a pretty report about the lines and their rhymes. 
+    a pretty report about the lines and their rhymes.
     """
     filepath = r"output/{}.html".format(fname)
     f = open(filepath, "w")
@@ -312,18 +314,19 @@ def generate_html_report(stripped_lines,
                            lines=[(line[0:line.rindex(' ')],
                                    line[line.rindex(' '):],
                                    class_name)
-                                  for line, class_name in zip(stripped_lines, classes)]))
+                                  for line, class_name in zip(stripped_lines,
+                                                              classes)]))
     print("Wrote output to {}".format(filepath))
-    
+
 
 def analyze_rhyme(lines, word_keys):
     '''Take a sequence of lines and perform some analysis on it.
     Currently this is called for a side-effect, it produces an html
-    report on disk. 
+    report on disk.
     Better would be to return the analysis and allow the user to make
     use of it as they prefer.
     '''
-    
+
     last_words = [strip_punctuation(last_word(line)) for line in lines]
     rhyme_groups = get_rhyme_groups(last_words, word_keys)
     rhyme_classes = classify_rhymes(last_words, lines, rhyme_groups)
@@ -337,7 +340,7 @@ def load_verses(path_to_file, strip_empty_lines=False):
     if strip_empty_lines:
         lines = [line for line in lines if line]
     return lines
-    
+
 
 # demonstrate usage
 def how_we_do_it():

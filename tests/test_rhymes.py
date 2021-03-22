@@ -7,13 +7,15 @@ from rhymes import (
 )
 
 PATH_TO_TEST_DICT = "tests/test_data/fake_dictionary.txt"
-WORD_KEYS, SYL_KEYS = read_cmu_dict(PATH_TO_TEST_DICT) 
+WORD_KEYS, SYL_KEYS = read_cmu_dict(PATH_TO_TEST_DICT)
+
 
 class TestReadDictionary:
     def test_read_good_dictionary(self):
         words, phonemes = read_cmu_dict(PATH_TO_TEST_DICT)
         assert "cat" in words
-        
+
+
 class TestMaxStress:
     def test_max_stress(self):
         phonemes = "B IH0 G AE1 T".split(" ")
@@ -31,10 +33,9 @@ class TestRateRhyme:
         assert 0.0 == rate_rhyme(word1, word2, WORD_KEYS)
 
 
-
 class TestGetRhymeGroups:
     def test_get_groups_for_aa_masc_rhyme(self):
-        words= ["cat", "rat"]
+        words = ["cat", "rat"]
         groups = get_rhyme_groups(words, WORD_KEYS)
         assert groups == [{'cat', 'rat'}]
 
@@ -43,12 +44,10 @@ class TestGetRhymeGroups:
         groups = get_rhyme_groups(words, WORD_KEYS)
         assert groups == []
 
-        
+
 class TestClassifyRhymes:
     def test_classify_aa_masc_rhymes(self):
-        words= ["cat", "rat"]
+        words = ["cat", "rat"]
         groups = get_rhyme_groups(words, WORD_KEYS)
         classes = classify_rhymes(words, words, groups)
-        assert classes ==['group-0', 'group-0']
-
-    
+        assert classes == ['group-0', 'group-0']
