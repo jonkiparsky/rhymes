@@ -35,7 +35,7 @@ def read_cmu_dict(path_to_cmu_dict="dicts/cmudict.txt"):
     for line in f:
         if line.startswith(";"):
             continue
-        if not line:
+        if not line.strip():
             continue
         word, phonemes = line.strip().split("  ")
         word = word.lower()  # normalize to lowercase
