@@ -50,4 +50,4 @@ class TestClassifyRhymes:
         words = ["cat", "rat"]
         groups = get_rhyme_groups(words, WORD_KEYS)
         classes = classify_rhymes(words, words, groups)
-        assert classes == ['group-0', 'group-0']
+        assert classes == ['A', 'A']

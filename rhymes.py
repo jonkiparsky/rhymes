@@ -283,6 +283,7 @@ def get_rhyme_groups(last_words, word_keys, threshold=DEFAULT_RHYME_THRESHOLD):
     return rhyme_groups
 
 
+
 def classify_rhymes(last_words, lines, rhyme_groups):
     """Given a list of "words" (should these be words, or should they
     be, perhaps, feet?) and rhyme classifications, assign the words to
@@ -291,10 +292,10 @@ def classify_rhymes(last_words, lines, rhyme_groups):
     classes = []
     for line, word in zip(lines, last_words):
         found_rhyme = False
-        for idx, rhyme_group in enumerate(rhyme_groups):
+        for idx, rhyme_group in zip(string.ascii_uppercase, rhyme_groups):
             if word in rhyme_group:
                 found_rhyme = True
-                classes.append("group-{}".format(idx))
+                classes.append(idx)
                 break
         if not found_rhyme:
             classes.append("default")
@@ -313,25 +314,30 @@ def generate_html_report(stripped_lines,
     f.write(render_results(title=title,
                            lines=[(line[0:line.rindex(' ')],
                                    line[line.rindex(' '):],
-                                   class_name)
+                                   "group-{}".format(class_name))
                                   for line, class_name in zip(stripped_lines,
-                                                              classes)]))
+                                                              classes)
+                                  if " " in line]))
     print("Wrote output to {}".format(filepath))
 
 
-def analyze_rhyme(lines, word_keys):
+def analyze_rhyme(lines, word_keys=None):
     '''Take a sequence of lines and perform some analysis on it.
     Currently this is called for a side-effect, it produces an html
     report on disk.
     Better would be to return the analysis and allow the user to make
     use of it as they prefer.
     '''
+    if word_keys is None:
+        word_keys, _ = read_cmu_dict()
+    tails = last_words(lines)
+    rhyme_groups = get_rhyme_groups(tails, word_keys)
+    rhyme_classes = classify_rhymes(tails, lines, rhyme_groups)
+    return rhyme_classes
 
-    last_words = [strip_punctuation(last_word(line)) for line in lines]
-    rhyme_groups = get_rhyme_groups(last_words, word_keys)
-    rhyme_classes = classify_rhymes(last_words, lines, rhyme_groups)
-    generate_html_report(lines, rhyme_classes)
 
+def last_words(lines):
+    return [strip_punctuation(last_word(line)) for line in lines]
 
 def load_verses(path_to_file, strip_empty_lines=False):
     '''Convenience function for getting material to work with
@@ -346,8 +352,8 @@ def load_verses(path_to_file, strip_empty_lines=False):
 def how_we_do_it():
     word_keys, syl_keys = read_cmu_dict()
     poem = load_verses("texts/housman/shropshire0.txt")
-    analyze_rhyme(poem, word_keys)
-
+    rhyme_classes = analyze_rhyme(poem, word_keys)
+    generate_html_report(poem, rhyme_classes)
 
 '''
 # just some notes below here
