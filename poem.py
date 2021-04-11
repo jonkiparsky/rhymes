@@ -32,6 +32,14 @@ class Poem:
         schemes = set(["".join(analysis) for analysis in stanza_analyses])
         return schemes
 
+    def render_html(self):
+        fname = "output.html"
+        filepath = r"output/{}".format(fname)
+        stanzas = [stanza.prep_html() for stanza in self.stanzas]
+        f = open (filepath, "w")
+        f.write(render_results(title=self.title,
+                               stanzas=stanzas))
+
     def __str__(self):
         return "\n\n".join([str(stanza) for stanza in self.stanzas])
 
@@ -50,7 +58,16 @@ class Stanza:
     
     def analyze(self):
         return analyze_rhyme([str(line) for line in self.lines], WORD_KEYS)
-        
+
+    def prep_html(self):
+        classes = self.analyze()
+        lines = [(line[0:line.rindex(' ')],
+                 line[line.rindex(' '):],
+                 "group-{}".format(cls))
+                for line, cls in zip(map(str, self.lines), classes)]
+        return lines
+                
+
     
     def __init__(self, lines):
         self.lines = lines

@@ -312,12 +312,12 @@ def generate_html_report(stripped_lines,
     filepath = r"output/{}.html".format(fname)
     f = open(filepath, "w")
     f.write(render_results(title=title,
-                           lines=[(line[0:line.rindex(' ')],
-                                   line[line.rindex(' '):],
-                                   "group-{}".format(class_name))
-                                  for line, class_name in zip(stripped_lines,
-                                                              classes)
-                                  if " " in line]))
+                           stanzas=[[(line[0:line.rindex(' ')],
+                                      line[line.rindex(' '):],
+                                      "group-{}".format(class_name))
+                                     for line, class_name in zip(stripped_lines,
+                                                                 classes)
+                                     if " " in line]]))
     print("Wrote output to {}".format(filepath))
 
 
