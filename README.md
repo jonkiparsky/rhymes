@@ -42,4 +42,8 @@ Note that the current stable Python 3.10 release has a [bug](https://github.com/
 
 Zwicky, Linguistics and Folk Poetry
 
+# To do: #
+
+- ~~html output generation fails due to titles, etc, preceding poem~~ (EC 2021-10-17)
+- move rhyme class detection up one level to compare across the whole poem? (rather than across a single stanza)
 
