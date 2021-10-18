@@ -23,11 +23,27 @@ digits appended to vowels, and is a little confusing: 1 is primary stress,
 2 is secondary stress, and 0 is no stress. (so 1 > 2 > 0).
 `humanize_stress` converts to a a sensible format
 
+# Running the script #
+
+1. Clone this repo
+2. (optional) create a virtual environment (e.g., with `virtualenv` run: `virtualenv venv`)
+3. Install project requirements with pip: `pip install -r requirements.txt`
+4. Run the example code with `python rhymes.py`. Open `/output/output.html` in a browser to see the result!
 
 
-Readings:
+# Testing #
+
+We use `pytest` on this project. To execute the existing tests, run `pytest tests`. 
+
+Note that the current stable Python 3.10 release has a [bug](https://github.com/pytest-dev/pytest/issues/8546) that conflicts with the pytest package. Please use 3.9 or below for now.
+
+
+# Readings: #
+
 Zwicky, Linguistics and Folk Poetry
 
-To do:
-- html output generation fails due to titles, etc, preceding poem
+# To do: #
+
+- ~~html output generation fails due to titles, etc, preceding poem~~ (EC 2021-10-17)
+- move rhyme class detection up one level to compare across the whole poem? (rather than across a single stanza)
 

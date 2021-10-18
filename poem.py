@@ -1,20 +1,25 @@
 from itertools import chain
+from functools import reduce
 
 from rhymes import (
     read_cmu_dict,
     analyze_rhyme
     )
 
+from render import render_results
+
 WORD_KEYS, _  = read_cmu_dict()
 
 class Poem:
-    def __init__(self, lines, title=""):
+    def __init__(self, lines, title="", has_header=True):
+        self.stanzas = []
         self.read_lines(lines)
-        self.title = title or str(self.stanzas[0].lines[0])
+        self.title = title or lines[0]
+        if(has_header):
+            self.remove_header()  
                                   
     def read_lines(self, lines):
         strip_lines(lines)
-        self.stanzas = []
         current_stanza = []
         
         for line in lines:
@@ -26,6 +31,7 @@ class Poem:
                 current_stanza = []
         if current_stanza:
             self.stanzas.append(Stanza(current_stanza))
+
 
     def rhyme_scheme(self):
         stanza_analyses = [stanza.analyze() for stanza in self.stanzas]
@@ -40,6 +46,32 @@ class Poem:
         f.write(render_results(title=self.title,
                                stanzas=stanzas))
 
+    def remove_header(self, threshhold=2):
+        '''Attempt to remove title and other preceding data, like a date. 
+        Current criteria for header (must meet all to be stripped):
+            - supplied stanzas differ in length
+            - any single-line stanza that occurs before the first stanza with 
+            $threshhold or more lines
+        Known bug: if a poem starts with a single line stanza, this will 
+        incorrectly remove it.
+        '''
+        stanza_lengths = [len(stanza) for stanza in self.stanzas]
+
+        # if all stanzas are the same length, we have no hope of figuring
+        # out what the header is. Abort!
+
+        if(min(stanza_lengths) == max(stanza_lengths)): return
+        
+        delete_from = 0
+        for index, stanza_len in enumerate(stanza_lengths): 
+            if stanza_len >= threshhold:
+                break
+            elif stanza_len == 1:
+                delete_from = index + 1
+
+        self.stanzas = self.stanzas[delete_from:]
+      
+
     def __str__(self):
         return "\n\n".join([str(stanza) for stanza in self.stanzas])
 
@@ -49,6 +81,12 @@ class Poem:
 
     def __iter__(self):
         return (line for line in chain(*self.stanzas))
+
+    def __len__(self):
+        return sum([len(stanza) for stanza in self.stanzas])
+       
+      
+
         
     
 class Stanza:
@@ -63,7 +101,7 @@ class Stanza:
         classes = self.analyze()
         lines = [(line[0:line.rindex(' ')],
                  line[line.rindex(' '):],
-                 "group-{}".format(cls))
+                 f"group-{cls}")
                 for line, cls in zip(map(str, self.lines), classes)]
         return lines
                 
@@ -76,10 +114,13 @@ class Stanza:
         return "\n".join([str(line) for line in self.lines])
 
     def __repr__(self):
-        return "<Stanza: {}>".format(self.lines[0])
+        return f"<Stanza: {self.lines[0]}>"
 
     def __iter__(self):
         return (line for line in self.lines)
+
+    def __len__(self):
+        return len(self.lines)
         
     
 class Line:
@@ -127,3 +168,5 @@ def strip_lines(lines):
         lines.pop(0)
     while not lines[-1].strip():
         lines.pop(-1)
+
+

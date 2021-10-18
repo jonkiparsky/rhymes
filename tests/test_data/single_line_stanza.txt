@@ -1,0 +1,9 @@
+Test for Inline Single Line Stanzas
+
+Some stanzas go here
+And they have multiple lines
+At least two
+
+Actually single line stanzas are ok if they're in the middle
+
+Or at the end

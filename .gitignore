@@ -4,3 +4,10 @@ venv
 # build artifacts
 __pycache__/
 output/output.html
+
+# test output
+.coverage
+htmlcov
+
+# scratch
+.notes

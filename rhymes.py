@@ -350,29 +350,12 @@ def load_verses(path_to_file, strip_empty_lines=False):
 
 # demonstrate usage
 def how_we_do_it():
-    word_keys, syl_keys = read_cmu_dict()
-    poem = load_verses("texts/housman/shropshire0.txt")
-    rhyme_classes = analyze_rhyme(poem, word_keys)
-    generate_html_report(poem, rhyme_classes)
+    poem = Poem(lines=load_verses("texts/housman/shropshire0.txt"))
+    poem.render_html()
+    print("Open ./output/output.html in a browser to see the results!")
 
-'''
-# just some notes below here
-# matching primary stress vowel
-# number of syllables prior to stress?
 
-# Word pair          Test
-
-# syllable onset
-# 'plod : 'prod, 'clod, 'nod, 'odd
-
-# number of syllables prior to matching section
-# 'ate : 'mate, 'e'late, 'confiscate, de'activate
-
-# position of stress prior to matching section:
-# 'trod : a'broad, 'nimrod, 'arthropod (word initial stress)
-# 'trod : 'arthropod, I'ditarod, (missing one here)
-
-# syllable coda
-# 'bean: 'beat, 'bead, 'beast, 'beer,
-
-'''
+if __name__ == "__main__":
+    from poem import Poem
+    how_we_do_it()
+    
